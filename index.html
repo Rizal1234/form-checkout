@@ -39,7 +39,7 @@
 <body>
     <div class="container">
         <h2>Form Pembayaran</h2>
-        <form id="paymentForm" action="#" method="post">
+        <form id="paymentForm" action="#" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="nama">Nama Lengkap:</label>
                 <input type="text" id="nama" name="nama" required>
@@ -71,38 +71,25 @@
         </form>
     </div>
 
-    <!-- Logo -->
-    <img src="https://i.imgur.com/rPt55K9.png" alt="Logo" style="display: none;">
-
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzqO4ZCgz9d0O8J6kZDAe0IpDPbs4tFVALZggdP-DQkqQZ7Y8PE7zArzuBbJnWXIEUL/exec';
-        const form = document.forms['paymentForm'];
 
-        form.addEventListener('submit', e => {
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-                .then(response => {
-                    console.log('Success!', response);
-                    alert('Anda telah berhasil melakukan pembayaran. Pembayaran akan diperiksa oleh admin.');
-                    sendWhatsAppNotification('+6282319588080', 'Pembayaran telah dilakukan.');
+
+            const formData = new FormData(this);
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Pembayaran telah berhasil dilakukan!');
+                        window.location.href = `https://wa.me/6282319588080?text=${encodeURIComponent('Pembayaran telah berhasil dilakukan!')}`;
+                    } else {
+                        alert('Terjadi kesalahan: ' + data.message);
+                    }
                 })
                 .catch(error => console.error('Error!', error.message));
-            form.reset();
         });
-
-        function sendWhatsAppNotification(number, message) {
-            console.log('Pemberitahuan WhatsApp terkirim ke ' + number + ': ' + message);
-            // Di sini Anda dapat menambahkan logika untuk mengirim pesan WhatsApp
-            // Melalui layanan pihak ketiga seperti Twilio, WhatsApp Business API, dll.
-            // Contoh:
-            // fetch('YOUR_WHATSAPP_API_URL_HERE', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ number: number, message: message })
-            // })
-            // .then(response => console.log('WhatsApp Notification Sent!', response))
-            // .catch(error => console.error('Error sending WhatsApp Notification!', error));
-        }
     </script>
 </body>
 </html>
